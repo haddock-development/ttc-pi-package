@@ -1,6 +1,6 @@
 {
   "name": "@haddock/ttc-stack",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TTC (Test-Time Compute) Inference Scaling Stack for pi coding agent",
   "keywords": [
     "pi-package",
@@ -17,19 +17,11 @@
     "url": "https://github.com/haddock-development/ttc-pi-package"
   },
   "pi": {
-    "extensions": [
-      "./extensions"
-    ],
-    "skills": [
-      "./skills"
-    ],
-    "prompts": [
-      "./prompts"
-    ],
-    "themes": [
-      "./themes"
-    ],
-    "video": "https://haddock.dev/ttc-demo.mp4"
+    "extensions": ["./extensions"],
+    "skills": ["./skills"],
+    "prompts": ["./prompts"],
+    "themes": ["./themes"],
+    "agents": ["./agents"]
   },
   "peerDependencies": {
     "@mariozechner/pi-agent-core": "*",
