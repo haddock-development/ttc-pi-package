@@ -28,6 +28,7 @@ pi install https://github.com/haddock-development/ttc-pi-package
 | `ttc-router` | Router training and evaluation for compute scaling |
 | `ttc-hparam` | Optuna-based hyperparameter tuning |
 | `ttc-judge` | Judge model training for output evaluation |
+| `paper-to-engineering-features` | Transform HF/arXiv papers into trainable skills |
 
 ### Prompt Templates
 

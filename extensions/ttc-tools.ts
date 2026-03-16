@@ -1,7 +1,7 @@
 /**
  * TTC Stack Extension for pi coding agent
  *
- * Provides tools and commands for TTC (Test-Time Compute) workflows:
+ * Provides commands for TTC (Test-Time Compute) workflows:
  * - Training management (CPT → SFT → RLVR → TTC)
  * - Distillation pipelines
  * - Router evaluation
@@ -13,7 +13,7 @@
  * 2. Use /ttc:train, /ttc:distill, /ttc:eval, /ttc:status
  */
 
-import type { ExtensionAPI, from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
 // TTC Stack configuration
 interface TTCConfig {
@@ -60,10 +60,8 @@ export default function ttcExtension(pi: ExtensionAPI) {
 
             ctx.ui.notify(`Starting TTC ${stage.toUpperCase()} training for ${model} on ${backend}...`, "info");
 
-            // Insert training request into editor
-            const trainingPrompt = `Use the ttc-training skill to run ${stage.toUpperCase()} training for ${model} on the ${dataset} dataset with ${backend} backend and ${profile} profile.`;
-            ctx.editor.setText(trainingPrompt);
-            ctx.editor.submit();
+            // Send user message to trigger skill loading
+            pi.sendUserMessage(`Use the ttc-training skill to run ${stage.toUpperCase()} training for ${model} on the ${dataset} dataset with ${backend} backend and ${profile} profile.`);
         }
     });
 
@@ -89,9 +87,7 @@ export default function ttcExtension(pi: ExtensionAPI) {
 
             ctx.ui.notify(`Starting distillation: ${teacher} → ${student} (${profile} profile)...`, "info");
 
-            const distillPrompt = `Use the ttc-distill skill to distill ${teacher} into ${student} using the ${dataset} dataset with ${profile} profile.`;
-            ctx.editor.setText(distillPrompt);
-            ctx.editor.submit();
+            pi.sendUserMessage(`Use the ttc-distill skill to distill ${teacher} into ${student} using the ${dataset} dataset with ${profile} profile.`);
         }
     });
 
@@ -106,9 +102,8 @@ export default function ttcExtension(pi: ExtensionAPI) {
             }
 
             ctx.ui.notify(`Evaluating TTC router ${model}...`, "info");
-            const evalPrompt = `Use the ttc-router skill to evaluate the TTC router ${model}.`;
-            ctx.editor.setText(evalPrompt);
-            ctx.editor.submit();
+
+            pi.sendUserMessage(`Use the ttc-router skill to evaluate the TTC router ${model}.`);
         }
     });
 
@@ -129,7 +124,10 @@ export default function ttcExtension(pi: ExtensionAPI) {
                 "  • hf_jobs_gpu_line (paid, unlimited)"
             ];
 
-            await ctx.ui.select("TTC Stack Status", statusItems);
+            const selected = await ctx.ui.select("TTC Stack Status", statusItems);
+            if (selected) {
+                ctx.ui.notify(`Selected: ${selected}`, "info");
+            }
         }
     });
 
@@ -149,15 +147,11 @@ export default function ttcExtension(pi: ExtensionAPI) {
                 const model = parts[1];
                 const dataset = parts[2];
                 ctx.ui.notify(`Training judge model ${model}...`, "info");
-                const judgePrompt = `Use the ttc-judge skill to train a judge model from ${model} on the ${dataset} dataset.`;
-                ctx.editor.setText(judgePrompt);
-                ctx.editor.submit();
+                pi.sendUserMessage(`Use the ttc-judge skill to train a judge model from ${model} on the ${dataset} dataset.`);
             } else if (action === "eval" && parts.length >= 2) {
                 const model = parts[1];
                 ctx.ui.notify(`Evaluating judge model ${model}...`, "info");
-                const evalPrompt = `Use the ttc-router skill to evaluate the judge model ${model}.`;
-                ctx.editor.setText(evalPrompt);
-                ctx.editor.submit();
+                pi.sendUserMessage(`Use the ttc-router skill to evaluate the judge model ${model}.`);
             } else {
                 ctx.ui.notify("Usage: /ttc:judge train <model> <dataset> | /ttc:judge eval <model>", "error");
             }
@@ -177,14 +171,10 @@ export default function ttcExtension(pi: ExtensionAPI) {
 
             if (action === "train") {
                 ctx.ui.notify("Starting router training...", "info");
-                const routerPrompt = "Use the ttc-router skill to train a TTC router for inference scaling decisions.";
-                ctx.editor.setText(routerPrompt);
-                ctx.editor.submit();
+                pi.sendUserMessage("Use the ttc-router skill to train a TTC router for inference scaling decisions.");
             } else if (action === "bench") {
                 ctx.ui.notify("Benchmarking router...", "info");
-                const benchPrompt = "Use the ttc-router skill to benchmark the TTC router performance across different inference modes.";
-                ctx.editor.setText(benchPrompt);
-                ctx.editor.submit();
+                pi.sendUserMessage("Use the ttc-router skill to benchmark the TTC router performance across different inference modes.");
             } else {
                 ctx.ui.notify("Usage: /ttc:router train | /ttc:router bench", "error");
             }
@@ -206,16 +196,14 @@ export default function ttcExtension(pi: ExtensionAPI) {
 
             ctx.ui.notify(`Starting hyperparameter tuning for ${model} (${trials} trials)...`, "info");
 
-            const hparamPrompt = `Use the ttc-hparam skill to run Optuna hyperparameter tuning for ${model} with ${trials} trials.`;
-            ctx.editor.setText(hparamPrompt);
-            ctx.editor.submit();
+            pi.sendUserMessage(`Use the ttc-hparam skill to run Optuna hyperparameter tuning for ${model} with ${trials} trials.`);
         }
     });
 
     // Event hook for tool usage logging
     pi.on("tool_call", async (event, _ctx) => {
-        if (event.tool && event.tool.startsWith("ttc_")) {
-            console.log(`[TTC Extension] Tool called: ${event.tool}`);
+        if (event.toolName && event.toolName.startsWith("ttc_")) {
+            console.log(`[TTC Extension] Tool called: ${event.toolName}`);
             config.lastRun = new Date().toISOString();
         }
     });
