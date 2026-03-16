@@ -1,70 +1,91 @@
 ---
 name: paper-to-engineering-features
 description: Transform HuggingFace/arXiv research papers into trainable engineering features, skills, scripts and configs for Qwen 3.5 0.8B. Use when user provides a paper URL or wants to convert research into implementation. Creates complete skill ecosystems with ASCII diagrams.
-compatibility: Requires huggingface-cli, gh CLI, access to arXiv/HF Papers
 ---
 
 # Paper to Engineering Features
 
 Converts research papers into trainable engineering features for the TTC Stack.
 
-## Workflow
+## Input
+User provides a paper URL from:
+- HuggingFace Papers: `https://huggingface.co/papers/<paper-id>`
+- arXiv: `https://arxiv.org/abs/<paper-id>`
 
-### 1. Paper Fetch
+## Step-by-Step Workflow
 
-**HuggingFace Papers:**
+### Step 1: Fetch Paper
+
+**For HuggingFace Papers:**
+```bash
+# Extract paper ID from URL
+PAPER_ID="<paper-id from URL>"
+
+# Use curl to fetch paper info from HF API
+curl -s "https://huggingface.co/api/papers/$PAPER_ID" | jq '.'
 ```
-https://huggingface.co/papers/<paper-id>
+
+**For arXiv:**
+```bash
+# Extract paper ID from URL
+PAPER_ID="<paper-id from URL>"
+
+# Use curl to fetch from arXiv API
+curl -s "http://export.arxiv.org/api/query?id_list=$PAPER_ID"
 ```
-Use `mcp__hf-mcp-server__paper_search` to find papers, then `mcp__hf-mcp-server__hub_repo_details` for details.
 
-**arXiv:**
-```
-https://arxiv.org/abs/<paper-id>
-```
-Use `mcp__web_reader__webReader` to fetch abstract and content.
+Read the abstract, title, authors, and key technical claims.
 
-### 2. Engineering Feature Extraction
+### Step 2: Extract Engineering Features
 
-For each paper, extract:
+Analyze the paper and extract features into these categories:
 
-| Category | What to Extract |
+| Category | What to Look For |
 |----------|-----------------|
-| **Architecture** | Layer modifications, attention variants, connection patterns |
-| **Training Methods** | Loss functions, optimization, curriculum, regularization |
-| **Algorithms** | Core algorithms, sampling strategies, routing logic |
-| **Data Pipeline** | Dataset requirements, preprocessing, augmentation |
-| **Evaluation** | Benchmarks, metrics, baselines to compare against |
+| **Architecture** | Layer modifications, attention variants, skip connections, MoE patterns |
+| **Training Methods** | Loss functions, optimization tricks, curriculum learning, regularization |
+| **Algorithms** | Core algorithms, sampling strategies, routing logic, decoding methods |
+| **Data Pipeline** | Dataset requirements, preprocessing steps, augmentation |
+| **Evaluation** | Benchmarks used, metrics, baseline comparisons |
 
-### 3. Qwen 3.5 0.8B Adaptation
+Create a feature table like:
+```
+| Feature | Category | Complexity | TTC Stage |
+|---------|----------|------------|-----------|
+| Skip connection pattern | Architecture | Medium | CPT |
+| Custom loss function | Training | Low | SFT |
+| Best-of-N sampling | Algorithm | Low | TTC |
+```
 
-Map extracted features to TTC pipeline stages:
+### Step 3: Map to Qwen 3.5 0.8B TTC Pipeline
+
+Map each feature to a TTC stage:
 
 ```
 CPT (Continued Pre-Training)
-├── Architecture changes → Model surgery scripts
-├── New modalities → Data pipeline configs
-└── Tokenizer changes → Vocabulary expansion
+├── Architecture changes → checkpoint surgery scripts
+├── New modalities → data pipeline configs
+└── Tokenizer changes → vocabulary expansion
 
 SFT (Supervised Fine-Tuning)
-├── Instruction format → Chat template configs
+├── Instruction format → chat template configs
 ├── Task-specific heads → LoRA adapter configs
-└── Data requirements → Dataset schemas
+└── Data requirements → dataset schemas
 
 RLVR (Reinforcement Learning with Verifiable Rewards)
-├── Reward signals → Verifier configs
-├── Sampling strategies → Generation configs
+├── Reward signals → verifier configs
+├── Sampling strategies → generation configs
 └── Policy updates → GRPO/DPO configs
 
 TTC (Test-Time Compute)
-├── Router decisions → Router model configs
-├── Parallel sampling → Best-of-N configs
-└── Self-refinement → Critique loops
+├── Router decisions → router model configs
+├── Parallel sampling → best-of-N configs
+└── Self-refinement → critique loops
 ```
 
-### 4. Skill Ecosystem Generation
+### Step 4: Generate Skill Ecosystem
 
-Generate a complete skill package:
+Create the skill package structure in a temporary directory:
 
 ```
 paper-<short-name>/
@@ -75,7 +96,6 @@ paper-<short-name>/
 │   └── inference.py      # Inference wrapper
 ├── references/
 │   ├── architecture.md   # Detailed architecture docs
-│   ├── training.md       # Training methodology
 │   └── paper-summary.md  # Original paper summary
 └── configs/
     ├── sft.yaml          # SFT training config
@@ -83,172 +103,91 @@ paper-<short-name>/
     └── router.yaml       # TTC router config
 ```
 
-### 5. ASCII Architecture Diagrams
+### Step 5: Create ASCII Architecture Diagram
 
-Create visual diagrams using ASCII art:
+Generate a visual diagram:
 
 ```
-Example mHC Architecture:
-
-     ┌─────────────────────────────────────────────┐
-     │                  Qwen 3.5 0.8B              │
-     │  ┌─────────────────────────────────────┐   │
-     │  │           Embedding Layer           │   │
-     │  └──────────────────┬──────────────────┘   │
-     │                     ▼                       │
-     │  ┌─────────────────────────────────────┐   │
-     │  │  Layer 0: Standard Attention        │   │
-     │  └──────────────────┬──────────────────┘   │
-     │                     ▼                       │
-     │  ┌─────────────────────────────────────┐   │
-     │  │  Layer 1-20: mHC Skip Connections   │◄──┐
-     │  │  ┌───┐  ┌───┐  ┌───┐               │   │
-     │  │  │L1 │→ │L5 │→ │L10│→ ...         │   │
-     │  │  └─┬─┘  └─┬─┘  └─┬─┘               │   │
-     │  │    │      │      │                  │   │
-     │  │    └──────┴──────┴──────────────────┼───┘
-     │  └─────────────────────────────────────┘   │
-     │                     ▼                       │
-     │  ┌─────────────────────────────────────┐   │
-     │  │           Output Head               │   │
-     │  └─────────────────────────────────────┘   │
-     └─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│              Qwen 3.5 0.8B                  │
+│  ┌─────────────────────────────────────┐   │
+│  │           Embedding Layer           │   │
+│  └──────────────────┬──────────────────┘   │
+│                     ▼                       │
+│  ┌─────────────────────────────────────┐   │
+│  │        Transformer Layers           │   │
+│  │   [List modifications here]         │   │
+│  └──────────────────┬──────────────────┘   │
+│                     ▼                       │
+│  ┌─────────────────────────────────────┐   │
+│  │           Output Head               │   │
+│  └─────────────────────────────────────┘   │
+└─────────────────────────────────────────────┘
 ```
 
-### 6. GitHub Repository Creation
-
-Create a NEW repository (preserve originals):
+### Step 6: Create GitHub Repository
 
 ```bash
 # Create new repo
-gh repo create qwen-<feature-name> --public --description "Qwen 3.5 0.8B implementation of <paper>"
+cd /tmp/paper-<short-name>
+gh repo create qwen-<feature-name> --public --description "Qwen 3.5 0.8B implementation"
 
-# Push skill ecosystem
-git init && git add . && git commit -m "Initial skill ecosystem from <paper-id>"
-git push origin main
-```
-
-## Example: mHC Paper → 5 Skills
-
-From paper `https://huggingface.co/papers/2512.24880`:
-
-| Skill | Purpose | Backend |
-|-------|---------|---------|
-| `qwen-mhc-architecture-lab` | Architecture retrofit workflow | Local/Kaggle |
-| `qwen-mhc-bridge` | Bridge to downstream training | N/A |
-| `qwen-mhc-hf-jobs` | HF Jobs validation runs | HF Jobs |
-| `qwen-mhc-kaggle-smoke` | Quick smoke tests | Kaggle |
-| `qwen-mhc-retrofit-lab` | Checkpoint surgery & packaging | Local |
-
-## Skill Templates
-
-### Architecture Lab Skill
-
-```markdown
----
-name: <feature>-architecture-lab
-description: <Feature> architecture retrofit for Qwen 3.5 0.8B
----
-
-# <Feature> Architecture Lab
-
-## Overview
-[Brief description of the architectural change]
-
-## Implementation Steps
-1. Load base model
-2. Apply architecture modifications
-3. Verify parameter counts
-4. Run forward pass test
-5. Push modified model
-
-## Scripts
-- `scripts/retrofit.py` - Main architecture surgery
-- `scripts/verify.py` - Parameter verification
-
-## Configs
-- `configs/retrofit.yaml` - Retrofit configuration
-```
-
-### Kaggle Smoke Skill
-
-```markdown
----
-name: <feature>-kaggle-smoke
-description: Cheap Kaggle smoke validation for <feature>
----
-
-# <Feature> Kaggle Smoke
-
-## Purpose
-Quick validation on Kaggle's free T4 GPU.
-
-## Notebook Structure
-1. Install dependencies
-2. Load modified model
-3. Run inference test
-4. Compare against baseline
-
-## Resource Limits
-- GPU: T4 (16GB VRAM)
-- Time: 9h max
-- Storage: 20GB
-```
-
-### HF Jobs Skill
-
-```markdown
----
-name: <feature>-hf-jobs
-description: HF Jobs workflow for <feature> full validation
----
-
-# <Feature> HF Jobs
-
-## Purpose
-Full-scale training and evaluation on HF Jobs.
-
-## Job Types
-- `validate`: Quick validation run
-- `train`: Full training run
-- `eval`: Benchmark evaluation
-
-## Resource Profiles
-| Profile | GPU | Hours |
-|---------|-----|-------|
-| small | A10G | 2-4 |
-| medium | L4 | 8-16 |
-| large | A100 | 24+ |
+# Push
+git init
+git add .
+git commit -m "Initial skill ecosystem from paper <paper-id>"
+git branch -M main
+git remote add origin https://github.com/$(gh api user -q '.login')/qwen-<feature-name>.git
+git push -u origin main
 ```
 
 ## Output Format
 
-After processing a paper, provide:
+After processing, provide:
 
-1. **Paper Summary** - Key contributions in 3 bullet points
+1. **Paper Summary** - 3 bullet points of key contributions
 2. **Engineering Features Table** - What was extracted
-3. **Qwen Adaptation Plan** - Mapping to TTC stages
-4. **Skill List** - Generated skills with descriptions
+3. **TTC Stage Mapping** - Which features go where
+4. **Generated Skills List** - Names and descriptions
 5. **ASCII Diagram** - Architecture visualization
-6. **GitHub Repos** - Links to created repositories
+6. **GitHub Repo Links** - URLs to created repos
 7. **Installation Commands** - How to use in pi
 
-## Usage
+## Example Output
 
 ```
-User: Convert this paper to skills: https://huggingface.co/papers/2512.24880
+## Paper: mHC (2512.24880)
 
-Agent will:
-1. Fetch paper via HF MCP
-2. Extract engineering features
-3. Generate 3-5 skills with configs
-4. Create ASCII architecture diagram
-5. Create GitHub repos
-6. Provide installation commands
+### Summary
+- Introduces manifold-constrained hyper-connections for better gradient flow
+- Shows 2-5% improvement on reasoning benchmarks
+- Compatible with existing Transformer architectures
+
+### Features Extracted
+| Feature | Category | Complexity | Stage |
+|---------|----------|------------|-------|
+| Manifold skip connections | Architecture | High | CPT |
+| Constrained residuals | Architecture | Medium | CPT |
+
+### Generated Skills
+1. qwen-mhc-architecture-lab - Architecture retrofit
+2. qwen-mhc-kaggle-smoke - Quick validation
+3. qwen-mhc-hf-jobs - Full training
+4. qwen-mhc-bridge - Pipeline bridge
+5. qwen-mhc-retrofit-lab - Checkpoint surgery
+
+### Repositories
+- https://github.com/<user>/qwen-mhc-architecture-lab
+- https://github.com/<user>/qwen-mhc-kaggle-smoke
+- ...
+
+### Install
+pi install https://github.com/<user>/qwen-mhc-architecture-lab
 ```
 
-## References
+## Notes
 
-- `references/paper-template.md` - Template for paper analysis
-- `references/skill-template.md` - Template for skill generation
-- `references/config-schemas.md` - YAML config schemas
+- Always create NEW repositories (preserve originals)
+- Use descriptive names: `qwen-<feature>-<type>`
+- Generate at least 3 skills per paper (architecture-lab, kaggle-smoke, hf-jobs)
+- Include installation commands for each generated skill
