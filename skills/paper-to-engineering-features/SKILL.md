@@ -7,187 +7,127 @@ description: Transform HuggingFace/arXiv research papers into trainable engineer
 
 Converts research papers into trainable engineering features for the TTC Stack.
 
-## Input
-User provides a paper URL from:
-- HuggingFace Papers: `https://huggingface.co/papers/<paper-id>`
-- arXiv: `https://arxiv.org/abs/<paper-id>`
+## IMPORTANT: TillDone Setup Required
 
-## Step-by-Step Workflow
+This skill requires the TillDone task system. Before doing any work, you MUST:
 
-### Step 1: Fetch Paper
+```
+1. tilldone new-list "Paper to Skills Conversion"
+2. tilldone add "Fetch paper from URL"
+3. tilldone add "Extract engineering features"
+4. tilldone add "Map features to TTC stages"
+5. tilldone add "Generate skill ecosystem"
+6. tilldone add "Create ASCII diagram"
+7. tilldone add "Create GitHub repos"
+8. tilldone toggle 1  # Mark first task as inprogress
+```
 
-**For HuggingFace Papers:**
+Only AFTER these steps can you use other tools!
+
+## Workflow
+
+### Task 1: Fetch Paper
+
+First mark task 1 as inprogress: `tilldone toggle 1`
+
+**For HuggingFace Papers (2501.xxxxx format):**
 ```bash
-# Extract paper ID from URL
 PAPER_ID="<paper-id from URL>"
-
-# Use curl to fetch paper info from HF API
-curl -s "https://huggingface.co/api/papers/$PAPER_ID" | jq '.'
+curl -s "https://huggingface.co/api/papers/$PAPER_ID" | jq '.title, .abstract, .authors'
 ```
 
 **For arXiv:**
 ```bash
-# Extract paper ID from URL
 PAPER_ID="<paper-id from URL>"
-
-# Use curl to fetch from arXiv API
 curl -s "http://export.arxiv.org/api/query?id_list=$PAPER_ID"
 ```
 
-Read the abstract, title, authors, and key technical claims.
+After fetching: `tilldone toggle 1` (mark done), `tilldone toggle 2` (start next)
 
-### Step 2: Extract Engineering Features
+### Task 2: Extract Engineering Features
 
-Analyze the paper and extract features into these categories:
+Analyze and extract:
 
 | Category | What to Look For |
 |----------|-----------------|
-| **Architecture** | Layer modifications, attention variants, skip connections, MoE patterns |
-| **Training Methods** | Loss functions, optimization tricks, curriculum learning, regularization |
-| **Algorithms** | Core algorithms, sampling strategies, routing logic, decoding methods |
-| **Data Pipeline** | Dataset requirements, preprocessing steps, augmentation |
-| **Evaluation** | Benchmarks used, metrics, baseline comparisons |
+| **Architecture** | Layer modifications, attention variants, skip connections |
+| **Training Methods** | Loss functions, optimization, curriculum learning |
+| **Algorithms** | Sampling strategies, routing logic, decoding |
+| **Data Pipeline** | Dataset requirements, preprocessing |
+| **Evaluation** | Benchmarks, metrics, baselines |
 
-Create a feature table like:
-```
-| Feature | Category | Complexity | TTC Stage |
-|---------|----------|------------|-----------|
-| Skip connection pattern | Architecture | Medium | CPT |
-| Custom loss function | Training | Low | SFT |
-| Best-of-N sampling | Algorithm | Low | TTC |
-```
+After extracting: `tilldone toggle 2`, `tilldone toggle 3`
 
-### Step 3: Map to Qwen 3.5 0.8B TTC Pipeline
+### Task 3: Map to TTC Pipeline
 
-Map each feature to a TTC stage:
+Map features to stages:
 
 ```
-CPT (Continued Pre-Training)
-├── Architecture changes → checkpoint surgery scripts
-├── New modalities → data pipeline configs
-└── Tokenizer changes → vocabulary expansion
-
-SFT (Supervised Fine-Tuning)
-├── Instruction format → chat template configs
-├── Task-specific heads → LoRA adapter configs
-└── Data requirements → dataset schemas
-
-RLVR (Reinforcement Learning with Verifiable Rewards)
-├── Reward signals → verifier configs
-├── Sampling strategies → generation configs
-└── Policy updates → GRPO/DPO configs
-
-TTC (Test-Time Compute)
-├── Router decisions → router model configs
-├── Parallel sampling → best-of-N configs
-└── Self-refinement → critique loops
+CPT → Architecture changes, tokenizer modifications
+SFT → Instruction formats, LoRA configs, data schemas
+RLVR → Reward signals, verifier configs, GRPO/DPO
+TTC → Router decisions, parallel sampling, self-refinement
 ```
 
-### Step 4: Generate Skill Ecosystem
+After mapping: `tilldone toggle 3`, `tilldone toggle 4`
 
-Create the skill package structure in a temporary directory:
+### Task 4: Generate Skill Ecosystem
 
+Create package structure:
 ```
 paper-<short-name>/
-├── SKILL.md              # Main skill definition
-├── scripts/
-│   ├── train.py          # Training entry point
-│   ├── evaluate.py       # Evaluation script
-│   └── inference.py      # Inference wrapper
-├── references/
-│   ├── architecture.md   # Detailed architecture docs
-│   └── paper-summary.md  # Original paper summary
-└── configs/
-    ├── sft.yaml          # SFT training config
-    ├── rlvr.yaml         # RLVR config
-    └── router.yaml       # TTC router config
+├── SKILL.md
+├── scripts/{train.py, evaluate.py, inference.py}
+├── references/{architecture.md, paper-summary.md}
+└── configs/{sft.yaml, rlvr.yaml, router.yaml}
 ```
 
-### Step 5: Create ASCII Architecture Diagram
+After generating: `tilldone toggle 4`, `tilldone toggle 5`
 
-Generate a visual diagram:
+### Task 5: Create ASCII Diagram
 
+Generate architecture visualization:
 ```
 ┌─────────────────────────────────────────────┐
 │              Qwen 3.5 0.8B                  │
 │  ┌─────────────────────────────────────┐   │
-│  │           Embedding Layer           │   │
-│  └──────────────────┬──────────────────┘   │
-│                     ▼                       │
-│  ┌─────────────────────────────────────┐   │
-│  │        Transformer Layers           │   │
-│  │   [List modifications here]         │   │
-│  └──────────────────┬──────────────────┘   │
-│                     ▼                       │
-│  ┌─────────────────────────────────────┐   │
-│  │           Output Head               │   │
+│  │        [Modifications here]         │   │
 │  └─────────────────────────────────────┘   │
 └─────────────────────────────────────────────┘
 ```
 
-### Step 6: Create GitHub Repository
+After diagram: `tilldone toggle 5`, `tilldone toggle 6`
+
+### Task 6: Create GitHub Repos
 
 ```bash
-# Create new repo
-cd /tmp/paper-<short-name>
-gh repo create qwen-<feature-name> --public --description "Qwen 3.5 0.8B implementation"
-
-# Push
-git init
-git add .
-git commit -m "Initial skill ecosystem from paper <paper-id>"
-git branch -M main
-git remote add origin https://github.com/$(gh api user -q '.login')/qwen-<feature-name>.git
-git push -u origin main
+gh repo create qwen-<feature-name> --public --description "Qwen implementation"
+git init && git add . && git commit -m "Initial skill ecosystem"
+git push origin main
 ```
+
+After repos created: `tilldone toggle 6`
 
 ## Output Format
 
-After processing, provide:
+Provide at the end:
+1. Paper Summary (3 bullets)
+2. Features Table
+3. TTC Stage Mapping
+4. Generated Skills List
+5. ASCII Diagram
+6. GitHub Repo Links
+7. Installation Commands
 
-1. **Paper Summary** - 3 bullet points of key contributions
-2. **Engineering Features Table** - What was extracted
-3. **TTC Stage Mapping** - Which features go where
-4. **Generated Skills List** - Names and descriptions
-5. **ASCII Diagram** - Architecture visualization
-6. **GitHub Repo Links** - URLs to created repos
-7. **Installation Commands** - How to use in pi
+## Example Usage
 
-## Example Output
+User: "Convert this paper to skills: https://huggingface.co/papers/2512.24880"
 
+Agent MUST first:
 ```
-## Paper: mHC (2512.24880)
-
-### Summary
-- Introduces manifold-constrained hyper-connections for better gradient flow
-- Shows 2-5% improvement on reasoning benchmarks
-- Compatible with existing Transformer architectures
-
-### Features Extracted
-| Feature | Category | Complexity | Stage |
-|---------|----------|------------|-------|
-| Manifold skip connections | Architecture | High | CPT |
-| Constrained residuals | Architecture | Medium | CPT |
-
-### Generated Skills
-1. qwen-mhc-architecture-lab - Architecture retrofit
-2. qwen-mhc-kaggle-smoke - Quick validation
-3. qwen-mhc-hf-jobs - Full training
-4. qwen-mhc-bridge - Pipeline bridge
-5. qwen-mhc-retrofit-lab - Checkpoint surgery
-
-### Repositories
-- https://github.com/<user>/qwen-mhc-architecture-lab
-- https://github.com/<user>/qwen-mhc-kaggle-smoke
-- ...
-
-### Install
-pi install https://github.com/<user>/qwen-mhc-architecture-lab
+tilldone new-list "mHC Paper to Skills"
+tilldone add texts=["Fetch mHC paper", "Extract features", "Map to TTC", "Generate skills", "Create diagram", "Create repos"]
+tilldone toggle 1
 ```
 
-## Notes
-
-- Always create NEW repositories (preserve originals)
-- Use descriptive names: `qwen-<feature>-<type>`
-- Generate at least 3 skills per paper (architecture-lab, kaggle-smoke, hf-jobs)
-- Include installation commands for each generated skill
+Then proceed with actual work using bash, file writes, etc.
