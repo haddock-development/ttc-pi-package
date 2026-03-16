@@ -7,98 +7,87 @@ description: Transform HuggingFace/arXiv research papers into trainable engineer
 
 Converts research papers into trainable engineering features for the TTC Stack.
 
-## IMPORTANT: TillDone Setup Required
-
-This skill requires the TillDone task system. Before doing any work, you MUST:
-
-```
-1. tilldone new-list "Paper to Skills Conversion"
-2. tilldone add "Fetch paper from URL"
-3. tilldone add "Extract engineering features"
-4. tilldone add "Map features to TTC stages"
-5. tilldone add "Generate skill ecosystem"
-6. tilldone add "Create ASCII diagram"
-7. tilldone add "Create GitHub repos"
-8. tilldone toggle 1  # Mark first task as inprogress
-```
-
-Only AFTER these steps can you use other tools!
+## Input
+User provides a paper URL:
+- HuggingFace Papers: `https://huggingface.co/papers/<paper-id>`
+- arXiv: `https://arxiv.org/abs/<paper-id>`
 
 ## Workflow
 
-### Task 1: Fetch Paper
+### 1. Fetch Paper
 
-First mark task 1 as inprogress: `tilldone toggle 1`
-
-**For HuggingFace Papers (2501.xxxxx format):**
+**HuggingFace Papers:**
 ```bash
 PAPER_ID="<paper-id from URL>"
-curl -s "https://huggingface.co/api/papers/$PAPER_ID" | jq '.title, .abstract, .authors'
+curl -s "https://huggingface.co/api/papers/$PAPER_ID"
 ```
 
-**For arXiv:**
+**arXiv:**
 ```bash
 PAPER_ID="<paper-id from URL>"
 curl -s "http://export.arxiv.org/api/query?id_list=$PAPER_ID"
 ```
 
-After fetching: `tilldone toggle 1` (mark done), `tilldone toggle 2` (start next)
-
-### Task 2: Extract Engineering Features
-
-Analyze and extract:
+### 2. Extract Engineering Features
 
 | Category | What to Look For |
 |----------|-----------------|
-| **Architecture** | Layer modifications, attention variants, skip connections |
-| **Training Methods** | Loss functions, optimization, curriculum learning |
-| **Algorithms** | Sampling strategies, routing logic, decoding |
-| **Data Pipeline** | Dataset requirements, preprocessing |
-| **Evaluation** | Benchmarks, metrics, baselines |
+| Architecture | Layer modifications, attention variants, skip connections, MoE |
+| Training | Loss functions, optimization, curriculum learning |
+| Algorithms | Sampling strategies, routing logic, decoding |
+| Data | Dataset requirements, preprocessing |
+| Evaluation | Benchmarks, metrics, baselines |
 
-After extracting: `tilldone toggle 2`, `tilldone toggle 3`
-
-### Task 3: Map to TTC Pipeline
-
-Map features to stages:
+### 3. Map to TTC Stages
 
 ```
-CPT → Architecture changes, tokenizer modifications
-SFT → Instruction formats, LoRA configs, data schemas
-RLVR → Reward signals, verifier configs, GRPO/DPO
-TTC → Router decisions, parallel sampling, self-refinement
+CPT (Continued Pre-Training)
+├── Architecture changes → checkpoint surgery
+└── Tokenizer changes → vocabulary expansion
+
+SFT (Supervised Fine-Tuning)
+├── Instruction format → chat template configs
+└── Data requirements → dataset schemas
+
+RLVR (Reinforcement Learning)
+├── Reward signals → verifier configs
+└── Policy updates → GRPO/DPO configs
+
+TTC (Test-Time Compute)
+├── Router decisions → router configs
+└── Parallel sampling → best-of-N configs
 ```
 
-After mapping: `tilldone toggle 3`, `tilldone toggle 4`
+### 4. Generate Skill Package
 
-### Task 4: Generate Skill Ecosystem
-
-Create package structure:
 ```
-paper-<short-name>/
+qwen-<feature-name>/
 ├── SKILL.md
-├── scripts/{train.py, evaluate.py, inference.py}
-├── references/{architecture.md, paper-summary.md}
-└── configs/{sft.yaml, rlvr.yaml, router.yaml}
+├── scripts/
+│   ├── train.py
+│   ├── evaluate.py
+│   └── inference.py
+├── references/
+│   ├── architecture.md
+│   └── paper-summary.md
+└── configs/
+    ├── sft.yaml
+    ├── rlvr.yaml
+    └── router.yaml
 ```
 
-After generating: `tilldone toggle 4`, `tilldone toggle 5`
+### 5. Create ASCII Diagram
 
-### Task 5: Create ASCII Diagram
-
-Generate architecture visualization:
 ```
 ┌─────────────────────────────────────────────┐
 │              Qwen 3.5 0.8B                  │
 │  ┌─────────────────────────────────────┐   │
-│  │        [Modifications here]         │   │
+│  │        [Feature modifications]      │   │
 │  └─────────────────────────────────────┘   │
 └─────────────────────────────────────────────┘
 ```
 
-After diagram: `tilldone toggle 5`, `tilldone toggle 6`
-
-### Task 6: Create GitHub Repos
+### 6. Create GitHub Repos
 
 ```bash
 gh repo create qwen-<feature-name> --public --description "Qwen implementation"
@@ -106,28 +95,25 @@ git init && git add . && git commit -m "Initial skill ecosystem"
 git push origin main
 ```
 
-After repos created: `tilldone toggle 6`
+## Output
 
-## Output Format
-
-Provide at the end:
+Provide:
 1. Paper Summary (3 bullets)
 2. Features Table
 3. TTC Stage Mapping
-4. Generated Skills List
+4. Generated Skills (3-5 per paper)
 5. ASCII Diagram
 6. GitHub Repo Links
 7. Installation Commands
 
-## Example Usage
+## Example
 
-User: "Convert this paper to skills: https://huggingface.co/papers/2512.24880"
+From `https://huggingface.co/papers/2512.24880`:
 
-Agent MUST first:
-```
-tilldone new-list "mHC Paper to Skills"
-tilldone add texts=["Fetch mHC paper", "Extract features", "Map to TTC", "Generate skills", "Create diagram", "Create repos"]
-tilldone toggle 1
-```
-
-Then proceed with actual work using bash, file writes, etc.
+| Skill | Purpose | Backend |
+|-------|---------|---------|
+| qwen-mhc-architecture-lab | Architecture retrofit | Kaggle |
+| qwen-mhc-kaggle-smoke | Quick validation | Kaggle |
+| qwen-mhc-hf-jobs | Full training | HF Jobs |
+| qwen-mhc-bridge | Pipeline bridge | N/A |
+| qwen-mhc-retrofit-lab | Checkpoint surgery | Local |
