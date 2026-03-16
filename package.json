@@ -2,7 +2,14 @@
   "name": "@haddock/ttc-stack",
   "version": "1.0.0",
   "description": "TTC (Test-Time Compute) Inference Scaling Stack for pi coding agent",
-  "keywords": ["pi-package", "ttc", "inference-scaling", "qwen", "training", "distillation"],
+  "keywords": [
+    "pi-package",
+    "ttc",
+    "inference-scaling",
+    "qwen",
+    "training",
+    "distillation"
+  ],
   "author": "Haddock Development",
   "license": "MIT",
   "repository": {
@@ -10,16 +17,24 @@
     "url": "https://github.com/haddock-development/ttc-pi-package"
   },
   "pi": {
-    "extensions": ["./extensions"],
-    "skills": ["./skills"],
-    "prompts": ["./prompts"],
-    "themes": ["./themes"],
+    "extensions": [
+      "./extensions"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts"
+    ],
+    "themes": [
+      "./themes"
+    ],
     "video": "https://haddock.dev/ttc-demo.mp4"
   },
   "peerDependencies": {
-    "@mariozechner/pi-ai": "*",
     "@mariozechner/pi-agent-core": "*",
-    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "^0.58.3",
     "@mariozechner/pi-tui": "*"
   }
 }

@@ -13,43 +13,43 @@
  * 2. Use /ttc:train, /ttc:distill, /ttc:eval, /ttc:status
  */
 
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, from "@mariozechner/pi-coding-agent";
 
 // TTC Stack configuration
 interface TTCConfig {
-	activeJobs: string[];
-	lastRun: string | null;
-	routesAvailable: string[];
+    activeJobs: string[];
+    lastRun: string | null;
+    routesAvailable: string[];
 }
 
 let config: TTCConfig = {
-	activeJobs: [],
-	lastRun: null,
-	routesAvailable: [
-		"ttc_router_eval",
-		"ttc_aware_training",
-		"ttc_distill_medium",
-		"ttc_distill_high",
-		"ttc_hparam_tuning",
-		"judge_training",
-		"reward_training"
-	]
+    activeJobs: [],
+    lastRun: null,
+    routesAvailable: [
+        "ttc_router_eval",
+        "ttc_aware_training",
+        "ttc_distill_medium",
+        "ttc_distill_high",
+        "ttc_hparam_tuning",
+        "judge_training",
+        "reward_training"
+    ]
 };
 
 export default function ttcExtension(pi: ExtensionAPI) {
-	// Register /ttc:train command
-	pi.registerCommand("ttc:train", {
-		description: "Start TTC-aware training (CPT → SFT → RLVR → TTC)",
-		getArgumentCompletions: (prefix) => {
-			const stages = ["cpt", "sft", "rlvr", "ttc"];
-			const filtered = stages.filter(s => s.startsWith(prefix));
-			return filtered.length > 0 ? filtered.map(s => ({ value: s, label: s })) : null;
-		},
-		handler: async (args, ctx) => {
-			const parts = args.trim().split(/\s+/);
-			if (parts.length < 3) {
-				ctx.ui.notify("Usage: /ttc:train <stage> <model> <dataset> [--backend <kaggle|hf-jobs>] [--profile <low|medium|high>]", "error");
-				return;
+    // Register /ttc:train command
+    pi.registerCommand("ttc:train", {
+        description: "Start TTC-aware training (CPT → SFT → RLVR → TTC)",
+        getArgumentCompletions: (prefix) => {
+            const stages = ["cpt", "sft", "rlvr", "ttc"];
+            const filtered = stages.filter(s => s.startsWith(prefix));
+            return filtered.length > 0 ? filtered.map(s => ({ value: s, label: s })) : null;
+        },
+        handler: async (args, ctx) => {
+            const parts = args.trim().split(/\s+/);
+            if (parts.length < 3) {
+                ctx.ui.notify("Usage: /ttc:train <stage> <model> <dataset> [--backend <kaggle|hf-jobs>] [--profile <low|medium|high>]", "error");
+                return;
             }
 
             const stage = parts[0];
@@ -99,21 +99,16 @@ export default function ttcExtension(pi: ExtensionAPI) {
     pi.registerCommand("ttc:eval", {
         description: "Evaluate TTC router performance",
         handler: async (args, ctx) => {
-                const parts = args.trim().split(/\s+/);
-                if (parts.length < 1) {
-                    ctx.ui.notify("Usage: /ttc:eval <model> [--benchmark <name>]", "error");
-                    return;
-                }
-
-                const model = parts[0];
-                const benchmark = parts.includes("--benchmark") ? parts[parts.indexOf("--benchmark") + 1] : "mmlu";
-
-                ctx.ui.notify(`Evaluating TTC router ${model} on ${benchmark}...`, "info");
-
-                const evalPrompt = `Use the ttc-router skill to evaluate the router ${model} on the ${benchmark} benchmark.`;
-                ctx.editor.setText(evalPrompt);
-                ctx.editor.submit();
+            const model = args.trim();
+            if (!model) {
+                ctx.ui.notify("Usage: /ttc:eval <model>", "error");
+                return;
             }
+
+            ctx.ui.notify(`Evaluating TTC router ${model}...`, "info");
+            const evalPrompt = `Use the ttc-router skill to evaluate the TTC router ${model}.`;
+            ctx.editor.setText(evalPrompt);
+            ctx.editor.submit();
         }
     });
 
@@ -121,21 +116,20 @@ export default function ttcExtension(pi: ExtensionAPI) {
     pi.registerCommand("ttc:status", {
         description: "Show TTC stack status",
         handler: async (_args, ctx) => {
-                const statusItems = [
-                    "--- TTC Stack Status ---",
-                    `Active jobs: ${config.activeJobs.length || "none"}`,
-                    `Last run: ${config.lastRun || "never"}`,
-                    "",
-                    "--- Available Routes ---",
-                    ...config.routesAvailable.map(r => `  • ${r}`),
-                    "",
-                    "--- Backends ---",
-                    "  • kaggle_gpu_line (free, 30h/week)",
-                    "  • hf_jobs_gpu_line (paid, unlimited)"
-                ];
+            const statusItems = [
+                "--- TTC Stack Status ---",
+                `Active jobs: ${config.activeJobs.length || "none"}`,
+                `Last run: ${config.lastRun || "never"}`,
+                "",
+                "--- Available Routes ---",
+                ...config.routesAvailable.map(r => `  • ${r}`),
+                "",
+                "--- Backends ---",
+                "  • kaggle_gpu_line (free, 30h/week)",
+                "  • hf_jobs_gpu_line (paid, unlimited)"
+            ];
 
-                await ctx.ui.select("TTC Stack Status", statusItems);
-            }
+            await ctx.ui.select("TTC Stack Status", statusItems);
         }
     });
 
@@ -148,25 +142,24 @@ export default function ttcExtension(pi: ExtensionAPI) {
             return filtered.length > 0 ? filtered.map(a => ({ value: a, label: a })) : null;
         },
         handler: async (args, ctx) => {
-                const parts = args.trim().split(/\s+/);
-                const action = parts[0];
+            const parts = args.trim().split(/\s+/);
+            const action = parts[0];
 
-                if (action === "train" && parts.length >= 3) {
-                    const model = parts[1];
-                    const dataset = parts[2];
-                    ctx.ui.notify(`Training judge model ${model}...`, "info");
-                    const judgePrompt = `Use the ttc-judge skill to train a judge model from ${model} on the ${dataset} dataset.`;
-                    ctx.editor.setText(judgePrompt);
-                    ctx.editor.submit();
-                } else if (action === "eval" && parts.length >= 2) {
-                    const model = parts[1];
-                    ctx.ui.notify(`Evaluating judge model ${model}...`, "info");
-                    const evalPrompt = `Use the ttc-router skill to evaluate the judge model ${model}.`;
-                    ctx.editor.setText(evalPrompt);
-                    ctx.editor.submit();
-                } else {
-                    ctx.ui.notify("Usage: /ttc:judge train <model> <dataset> | /ttc:judge eval <model>", "error");
-                }
+            if (action === "train" && parts.length >= 3) {
+                const model = parts[1];
+                const dataset = parts[2];
+                ctx.ui.notify(`Training judge model ${model}...`, "info");
+                const judgePrompt = `Use the ttc-judge skill to train a judge model from ${model} on the ${dataset} dataset.`;
+                ctx.editor.setText(judgePrompt);
+                ctx.editor.submit();
+            } else if (action === "eval" && parts.length >= 2) {
+                const model = parts[1];
+                ctx.ui.notify(`Evaluating judge model ${model}...`, "info");
+                const evalPrompt = `Use the ttc-router skill to evaluate the judge model ${model}.`;
+                ctx.editor.setText(evalPrompt);
+                ctx.editor.submit();
+            } else {
+                ctx.ui.notify("Usage: /ttc:judge train <model> <dataset> | /ttc:judge eval <model>", "error");
             }
         }
     });
@@ -180,21 +173,20 @@ export default function ttcExtension(pi: ExtensionAPI) {
             return filtered.length > 0 ? filtered.map(a => ({ value: a, label: a })) : null;
         },
         handler: async (args, ctx) => {
-                const action = args.trim();
+            const action = args.trim();
 
-                if (action === "train") {
-                    ctx.ui.notify("Starting router training...", "info");
-                    const routerPrompt = "Use the ttc-router skill to train a TTC router for inference scaling decisions.";
-                    ctx.editor.setText(routerPrompt);
-                    ctx.editor.submit();
-                } else if (action === "bench") {
-                    ctx.ui.notify("Benchmarking router...", "info");
-                    const benchPrompt = "Use the ttc-router skill to benchmark the TTC router performance across different inference modes.";
-                    ctx.editor.setText(benchPrompt);
-                    ctx.editor.submit();
-                } else {
-                    ctx.ui.notify("Usage: /ttc:router train | /ttc:router bench", "error");
-                }
+            if (action === "train") {
+                ctx.ui.notify("Starting router training...", "info");
+                const routerPrompt = "Use the ttc-router skill to train a TTC router for inference scaling decisions.";
+                ctx.editor.setText(routerPrompt);
+                ctx.editor.submit();
+            } else if (action === "bench") {
+                ctx.ui.notify("Benchmarking router...", "info");
+                const benchPrompt = "Use the ttc-router skill to benchmark the TTC router performance across different inference modes.";
+                ctx.editor.setText(benchPrompt);
+                ctx.editor.submit();
+            } else {
+                ctx.ui.notify("Usage: /ttc:router train | /ttc:router bench", "error");
             }
         }
     });
@@ -203,33 +195,30 @@ export default function ttcExtension(pi: ExtensionAPI) {
     pi.registerCommand("ttc:hparam", {
         description: "Run Optuna hyperparameter tuning",
         handler: async (args, ctx) => {
-                const parts = args.trim().split(/\s+/);
-                if (parts.length < 1) {
-                    ctx.ui.notify("Usage: /ttc:hparam <model> [--trials <n>]", "error");
-                    return;
-                }
-
-                const model = parts[0];
-                const trials = parts.includes("--trials") ? parts[parts.indexOf("--trials") + 1] : "50";
-
-                ctx.ui.notify(`Starting hyperparameter tuning for ${model} (${trials} trials)...`, "info");
-
-                const hparamPrompt = `Use the ttc-hparam skill to run Optuna hyperparameter tuning for ${model} with ${trials} trials.`;
-                ctx.editor.setText(hparamPrompt);
-                ctx.editor.submit();
+            const parts = args.trim().split(/\s+/);
+            if (parts.length < 1) {
+                ctx.ui.notify("Usage: /ttc:hparam <model> [--trials <n>]", "error");
+                return;
             }
+
+            const model = parts[0];
+            const trials = parts.includes("--trials") ? parts[parts.indexOf("--trials") + 1] : "50";
+
+            ctx.ui.notify(`Starting hyperparameter tuning for ${model} (${trials} trials)...`, "info");
+
+            const hparamPrompt = `Use the ttc-hparam skill to run Optuna hyperparameter tuning for ${model} with ${trials} trials.`;
+            ctx.editor.setText(hparamPrompt);
+            ctx.editor.submit();
         }
     });
 
     // Event hook for tool usage logging
     pi.on("tool_call", async (event, _ctx) => {
-                if (event.tool && event.tool.startsWith("ttc_")) {
-                    console.log(`[TTC Extension] Tool called: ${event.tool}`);
-                    config.lastRun = new Date().toISOString();
-                }
-            }
+        if (event.tool && event.tool.startsWith("ttc_")) {
+            console.log(`[TTC Extension] Tool called: ${event.tool}`);
+            config.lastRun = new Date().toISOString();
         }
-    );
+    });
 
     console.log("[TTC Extension] Loaded successfully");
 }
