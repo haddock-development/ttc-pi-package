@@ -1,0 +1,38 @@
+{
+  "name": "TTC Light",
+  "colors": {
+    "primary": "#00a080",
+    "secondary": "#f0f0f5",
+    "accent": "#dc2626",
+    "background": "#ffffff",
+    "surface": "#f5f5f5",
+    "text": "#1a1a1a",
+    "textMuted": "#666666",
+    "success": "#16a34a",
+    "warning": "#d97706",
+    "error": "#dc2626",
+    "info": "#2563eb"
+  },
+  "syntax": {
+    "keyword": "#9333ea",
+    "string": "#059669",
+    "number": "#7c3aed",
+    "comment": "#9ca3af",
+    "function": "#0891b2",
+    "variable": "#4f46e5",
+    "operator": "#db2777"
+  },
+  "ui": {
+    "editorBorder": "#00a080",
+    "editorBorderThinking": "#d97706",
+    "statusBar": "#f0f0f5",
+    "headerBg": "#ffffff",
+    "selection": "#00a08022"
+  },
+  "ttc": {
+    "modeLow": "#16a34a",
+    "modeMedium": "#2563eb",
+    "modeHigh": "#d97706",
+    "modeSuperthink": "#dc2626"
+  }
+}

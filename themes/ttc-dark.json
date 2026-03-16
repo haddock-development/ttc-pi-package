@@ -1,0 +1,38 @@
+{
+  "name": "TTC Dark",
+  "colors": {
+    "primary": "#00d4aa",
+    "secondary": "#1a1a2e",
+    "accent": "#ff6b6b",
+    "background": "#0f0f23",
+    "surface": "#1a1a2e",
+    "text": "#e0e0e0",
+    "textMuted": "#888888",
+    "success": "#4ade80",
+    "warning": "#fbbf24",
+    "error": "#f87171",
+    "info": "#60a5fa"
+  },
+  "syntax": {
+    "keyword": "#ff79c6",
+    "string": "#f1fa8c",
+    "number": "#bd93f9",
+    "comment": "#6272a4",
+    "function": "#50fa7b",
+    "variable": "#8be9fd",
+    "operator": "#ff79c6"
+  },
+  "ui": {
+    "editorBorder": "#00d4aa",
+    "editorBorderThinking": "#fbbf24",
+    "statusBar": "#1a1a2e",
+    "headerBg": "#0f0f23",
+    "selection": "#00d4aa33"
+  },
+  "ttc": {
+    "modeLow": "#4ade80",
+    "modeMedium": "#60a5fa",
+    "modeHigh": "#fbbf24",
+    "modeSuperthink": "#ff6b6b"
+  }
+}
